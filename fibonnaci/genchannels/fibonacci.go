@@ -1,5 +1,9 @@
 package genchannels
 
+import (
+	"errors"
+)
+
 type fibonacciChannel chan int
 
 // fills the fibonacciChannel up to the limiting index.
@@ -23,11 +27,11 @@ func fibonacci(limit int) fibonacciChannel {
 }
 
 // lazily evaluates the fibonacci channel contents every time invoked.
-func (fibChan fibonacciChannel) Next() *int {
+func (fibChan fibonacciChannel) Next() (*int, error) {
 	next, ok := <-fibChan
 	if !ok {
-		return nil
+		return nil, errors.New("no more solutions")
 	}
 
-	return &next
+	return &next, nil
 }
