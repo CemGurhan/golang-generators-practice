@@ -2,37 +2,36 @@ package final
 
 import "errors"
 
-type fibonacciChannel chan int
+type FibonacciChannel chan int
 
-// sender
-func newFibonacciChannel(limit int) fibonacciChannel {
-	newFibChan := make(fibonacciChannel)
-	first, second := 0, 1
+func NewFibonacciChannel(limit int) FibonacciChannel {
+	newFibChan := make(FibonacciChannel)
 
 	go func() {
-		for {
-			if limit <= 0 {
-				// close(newFibChan)
-				break
-			}
-			newFibChan <- first
-			first, second = second, first+second
-			limit--
+		for i := 0; i < limit; i++ {
+			newFibChan <- findFibValue(i)
 		}
+		close(newFibChan)
 	}()
 
 	return newFibChan
 }
 
-// receiver
-func (c fibonacciChannel) Next() (int, error) {
-	nextNum, ok := <-c
-
-	if !ok {
-		return -1, errors.New("fibonacci channel empty")
+func findFibValue(seqIndex int) int {
+	if seqIndex < 2 {
+		return seqIndex
 	}
 
-	return nextNum, nil
+	return findFibValue(seqIndex-1) + findFibValue(seqIndex-2)
+}
+
+func (c FibonacciChannel) Next() (int, error) {
+	nextVal, ok := <-c
+	if !ok {
+		return -1, errors.New("fibonacci channel closed")
+	}
+
+	return nextVal, nil
 }
 
 // make sure to close the channel in `newFibonacciChannel`
