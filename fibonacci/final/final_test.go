@@ -30,43 +30,46 @@ func TestNext_ClosedChannelReturnsError(t *testing.T) {
 }
 
 func TestFindFibValue(t *testing.T) {
-	actual := findFibValue(4)
-
-	require.Equal(t, 3, actual)
-
 	testCases := map[string]struct {
 		seqIndex int
 		expected int
+		fibCache fibCache
 	}{
 		"seqIndex 0": {
 			seqIndex: 0,
 			expected: 0,
+			fibCache: fibCache{},
 		},
 		"seqIndex 1": {
 			seqIndex: 1,
 			expected: 1,
+			fibCache: fibCache{},
 		},
 		"seqIndex 2": {
 			seqIndex: 2,
 			expected: 1,
+			fibCache: fibCache{},
 		},
 		"seqIndex 3": {
 			seqIndex: 3,
 			expected: 2,
+			fibCache: fibCache{},
 		},
 		"seqIndex 4": {
 			seqIndex: 4,
 			expected: 3,
+			fibCache: fibCache{},
 		},
 		"seqIndex 5": {
 			seqIndex: 5,
 			expected: 5,
+			fibCache: fibCache{},
 		},
 	}
 
 	for name, test := range testCases {
 		t.Run(name, func(t *testing.T) {
-			actual := findFibValue(test.seqIndex)
+			actual := findFibValue(test.seqIndex, test.fibCache)
 
 			require.Equal(t, test.expected, actual)
 		})

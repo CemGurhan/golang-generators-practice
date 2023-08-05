@@ -4,12 +4,15 @@ import "errors"
 
 type FibonacciChannel chan int
 
+type fibCache map[int]int
+
 func NewFibonacciChannel(limit int) FibonacciChannel {
 	newFibChan := make(FibonacciChannel)
+	newFibCache := fibCache{}
 
 	go func() {
 		for i := 0; i < limit; i++ {
-			newFibChan <- findFibValue(i)
+			newFibChan <- findFibValue(i, newFibCache)
 		}
 		close(newFibChan)
 	}()
@@ -17,12 +20,20 @@ func NewFibonacciChannel(limit int) FibonacciChannel {
 	return newFibChan
 }
 
-func findFibValue(seqIndex int) int {
+func findFibValue(seqIndex int, fibCache fibCache) int {
 	if seqIndex < 2 {
 		return seqIndex
 	}
 
-	return findFibValue(seqIndex-1) + findFibValue(seqIndex-2)
+	if cachedFibVal, isCached := fibCache[seqIndex]; isCached {
+		return cachedFibVal
+	}
+
+	fibValue := findFibValue(seqIndex-1, fibCache) +
+		findFibValue(seqIndex-2, fibCache)
+	fibCache[seqIndex] = fibValue
+
+	return fibValue
 }
 
 func (c FibonacciChannel) Next() (int, error) {
